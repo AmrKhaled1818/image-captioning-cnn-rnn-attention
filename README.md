@@ -27,30 +27,7 @@ Evaluated on 1,000 validation images against 5 human reference captions per imag
 
 ## Architecture
 
-```
-Input Image (B, 3, 224, 224)
-        |
-   ResNet-50 (pretrained, ImageNet)
-   -- remove avgpool + fc layers --
-        |
-Spatial feature map  (B, 2048, 7, 7)
-        |
-Reshape --> (B, 49, 2048)        Global pool --> (B, 2048)
-        |                                |
-        |                    Auxiliary head (60-way multi-label)
-        |
-Bahdanau Attention
-  score_i = V * tanh(W_h * h_t + W_f * f_i)
-  weights = softmax(scores)
-  context = sum(weights * F)
-        |
-Two-layer LSTM (hidden = 512)
-  input_t = [embed(word_t) ; context_t]
-        |
-Linear (512 --> vocab_size = 6,257)
-        |
-   Output token
-```
+![Architecture diagram](Architecture.png)
 
 **Hyperparameters**
 
@@ -109,12 +86,14 @@ aux_loss     = BCEWithLogitsLoss (60-class object prediction)
 
 ### Training Dynamics
 
-| Epoch | Train Loss | Val Loss |
-|-------|-----------|---------|
-| 1 | 4.2271 | — |
-| 11 (final) | 2.9714 | 3.3881 (best) |
+| Epoch | Phase | Encoder state | Train Loss | Val Loss |
+|-------|-------|---------------|:----------:|:--------:|
+| 1 | Phase 1 begins | ResNet-50 frozen | 4.2271 | — |
+| 7 | Phase 1 ends | ResNet-50 frozen | — | — |
+| 8 | Phase 2 begins | layer4 unfrozen (lr = 1e-5) | — | — |
+| 11 | Early stop | layer4 unfrozen | 2.9714 | 3.3881 |
 
-The two-phase CNN training schedule prevented catastrophic forgetting of ImageNet features while allowing the encoder to adapt to the captioning task.
+Epoch 8 marks the CNN unfreeze point. Allowing `layer4` gradients after the decoder has already converged on a reasonable attention strategy prevents the well-known catastrophic-forgetting failure mode where fine-tuning from epoch 1 collapses ImageNet representations before the decoder can make use of them. Early stopping fired at epoch 11 after patience (3 epochs without val-loss improvement) was exhausted.
 
 ---
 
@@ -135,10 +114,12 @@ Captions are generated using **beam search**:
 ```
 .
 ├── image_captioning_cnn_rnn_attention.ipynb    # Complete implementation: preprocessing,
-│                               # model definition, training, evaluation,
-│                               # beam search, BLEU scoring, visualisations
-└── Project 2.pdf               # Assignment specification
+│                                               # model definition, training, evaluation,
+│                                               # beam search, BLEU scoring, visualisations
+└── architecture.svg                            # Architecture diagram (this README)
 ```
+
+> The assignment specification PDF is not included in this repository.
 
 The entire pipeline is implemented in a single, heavily documented notebook (105 cells: 54 code, 51 markdown). Sections are demarcated by markdown headers for navigation.
 
