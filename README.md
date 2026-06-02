@@ -108,36 +108,6 @@ Captions are generated using **beam search**:
 5. Apply **trigram blocking** — zero out the probability of any token whose addition would create a repeated 3-gram — to prevent degenerate repetition.
 
 ---
-
-## Repository Structure
-
-```
-.
-├── image_captioning_cnn_rnn_attention.ipynb    # Complete implementation: preprocessing,
-│                                               # model definition, training, evaluation,
-│                                               # beam search, BLEU scoring, visualisations
-└── architecture.svg                            # Architecture diagram (this README)
-```
-
-> The assignment specification PDF is not included in this repository.
-
-The entire pipeline is implemented in a single, heavily documented notebook (105 cells: 54 code, 51 markdown). Sections are demarcated by markdown headers for navigation.
-
-**Notebook sections:**
-
-| Section | Content |
-|---------|---------|
-| 0 | Environment setup, GPU initialisation, reproducibility seed |
-| 1 | Dataset download via Kaggle API |
-| 2 | Data preprocessing, caption cleaning, image-caption pair construction |
-| 3 | Vocabulary construction, tokenisation, sequence encoding |
-| 4 | `EncoderCNN` — ResNet-50 feature extractor |
-| 5 | `BahdanauAttention`, `DecoderRNN`, `ImageCaptioningModel` |
-| 6 | Training loop with early stopping and LR scheduling |
-| 7 | BLEU score evaluation on validation set |
-| 8 | Greedy vs. beam search qualitative comparison |
-| 9 | Failure case analysis, caption galleries, loss curves |
-
 ---
 
 ## Dependencies
@@ -176,9 +146,3 @@ The notebook was executed on a **Kaggle kernel with an NVIDIA Tesla T4 GPU**. A 
 - Attention weight visualisations (heatmaps overlaid on input images) were not generated; adding these would improve interpretability analysis.
 
 ---
-
-## Academic Context
-
-Course: Advanced Machine Learning — Spring 2026
-Institution: German International University of Applied Sciences
-Supervisor: Dr. Caroline Sabty
